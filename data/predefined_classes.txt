@@ -1,5 +1,10 @@
-dog
-person
-cat
-tv
+trunk
+leaf
 car
+truck
+bus
+pole
+person
+building
+bird
+drone
