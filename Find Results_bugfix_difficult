@@ -1,0 +1,148 @@
+Searching 77 files for "difficult" (case sensitive, whole word)
+
+/home/willvegapunk/ProjectDrone/Label/labelImg/HISTORY.rst:
+    7  
+    8  * Fix issues
+    9: * Add difficult tag
+   10  * Create new files for pypi
+   11  
+
+/home/willvegapunk/ProjectDrone/Label/labelImg/labelImg.py:
+  133  
+  134          # Add chris
+  135:         self.diffcButton = QCheckBox("difficult")
+  136          self.diffcButton.setChecked(False)
+  137          self.diffcButton.stateChanged.connect(self.btnstate)
+  ...
+  378          self.fit_window = False
+  379          # Add Chris
+  380:         self.difficult = False
+  381  
+  382          # XXX: Could be completely declarative.
+  ...
+  435          Shape.fill_color = self.fillColor
+  436          # Add chris
+  437:         Shape.difficult = self.difficult
+  438  
+  439          def xbool(x):
+  ...
+  616      # Add chris
+  617      def btnstate(self, item= None):
+  618:         """ Function to handle difficult examples
+  619          Update on each object """
+  620          if not self.canvas.editing():
+  ...
+  625              item = self.labelList.item(self.labelList.count()-1)
+  626  
+  627:         difficult = self.diffcButton.isChecked()
+  628  
+  629          try:
+  ...
+  633          # Checked and Update
+  634          try:
+  635:             if difficult != shape.difficult:
+  636:                 shape.difficult = difficult
+  637                  self.setDirty()
+  638              else:  # User probably changed item visibility
+  ...
+  678      def loadLabels(self, shapes):
+  679          s = []
+  680:         for label, points, line_color, fill_color, difficult in shapes:
+  681              shape = Shape(label=label)
+  682              for x, y in points:
+  683                  shape.addPoint(QPointF(x, y))
+  684:             shape.difficult = difficult
+  685              shape.close()
+  686              s.append(shape)
+  ...
+  708                          points=[(p.x(), p.y()) for p in s.points],
+  709                         # add chris
+  710:                         difficult = s.difficult)
+  711  
+  712          shapes = [format_shape(shape) for shape in self.canvas.shapes]
+  ...
+  739              shape = self.itemsToShapes[item]
+  740              # Add Chris
+  741:             self.diffcButton.setChecked(shape.difficult)
+  742  
+  743      def labelItemChanged(self, item):
+
+/home/willvegapunk/ProjectDrone/Label/labelImg/libs/labelFile.py:
+   47              label = shape['label']
+   48              # Add Chris 
+   49:             difficult = int(shape['difficult'])
+   50              bndbox = LabelFile.convertPoints2BndBox(points)
+   51:             writer.addBndBox(bndbox[0], bndbox[1], bndbox[2], bndbox[3], label, difficult)
+   52  
+   53          writer.save(targetFile=filename)
+
+/home/willvegapunk/ProjectDrone/Label/labelImg/libs/pascal_voc_io.py:
+   71          return top
+   72  
+   73:     def addBndBox(self, xmin, ymin, xmax, ymax, name, difficult):
+   74          bndbox = {'xmin': xmin, 'ymin': ymin, 'xmax': xmax, 'ymax': ymax}
+   75          bndbox['name'] = name
+   76:         bndbox['difficult'] = difficult
+   77          self.boxlist.append(bndbox)
+   78  
+   ..
+   95              else:
+   96                  truncated.text = "0"
+   97:             difficult = SubElement(object_item, 'difficult')
+   98:             difficult.text = str( bool(each_object['difficult']) & 1 )
+   99              bndbox = SubElement(object_item, 'bndbox')
+  100              xmin = SubElement(bndbox, 'xmin')
+  ...
+  126      def __init__(self, filepath):
+  127          # shapes type:
+  128:         # [labbel, [(x1,y1), (x2,y2), (x3,y3), (x4,y4)], color, color, difficult]
+  129          self.shapes = []
+  130          self.filepath = filepath
+  ...
+  135          return self.shapes
+  136  
+  137:     def addShape(self, label, bndbox, difficult):
+  138          xmin = int(bndbox.find('xmin').text)
+  139          ymin = int(bndbox.find('ymin').text)
+  ...
+  141          ymax = int(bndbox.find('ymax').text)
+  142          points = [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)]
+  143:         self.shapes.append((label, points, None, None, difficult))
+  144  
+  145      def parseXML(self):
+  ...
+  159              label = object_iter.find('name').text
+  160              # Add chris
+  161:             difficult = bool(int(object_iter.find('difficult').text))
+  162:             self.addShape(label, bndbox, difficult)
+  163          return True
+  164  
+
+/home/willvegapunk/ProjectDrone/Label/labelImg/libs/shape.py:
+   37      scale = 1.0
+   38  
+   39:     def __init__(self, label=None, line_color=None,difficult = False):
+   40          self.label = label
+   41          self.points = []
+   42          self.fill = False
+   43          self.selected = False
+   44:         self.difficult = difficult
+   45  
+   46          self._highlightIndex = None
+   ..
+  173          if self.fill_color != Shape.fill_color:
+  174              shape.fill_color = self.fill_color
+  175:         shape.difficult = self.difficult 
+  176          return shape
+  177  
+
+/home/willvegapunk/ProjectDrone/Label/labelImg/tests/test_io.py:
+   12  # Test Write/Read
+   13  writer = PascalVocWriter('tests', 'test', (512, 512, 1), localImgPath='tests/test.bmp')
+   14: difficult = 1
+   15: writer.addBndBox(60, 40, 430, 504, 'person', difficult)
+   16: writer.addBndBox(113, 40, 450, 403, 'face', difficult)
+   17  writer.save('tests/test.xml')
+   18  
+
+41 matches across 6 files
